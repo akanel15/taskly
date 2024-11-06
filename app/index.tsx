@@ -6,6 +6,7 @@ import { useState } from "react";
 type ShoppingListItemType = {
   id: string;
   name: string;
+  completedAtTypestamp?: number;
 };
 
 export default function App() {
@@ -23,6 +24,26 @@ export default function App() {
     }
   };
 
+  const handleDelete = (id: string) => {
+    const newShoppingList = shoppingList.filter((item) => item.id !== id);
+    setShoppingList(newShoppingList);
+  };
+
+  const handleToggleComplete = (id: string) => {
+    const newShoppingList = shoppingList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          completedAtTypestamp: item.completedAtTypestamp
+            ? undefined
+            : Date.now(),
+        };
+      }
+      return item;
+    });
+    setShoppingList(newShoppingList);
+  };
+
   return (
     <FlatList
       style={styles.container}
@@ -35,7 +56,14 @@ export default function App() {
       }
       data={shoppingList}
       renderItem={({ item }) => {
-        return <ShoppingListItem name={item.name}></ShoppingListItem>;
+        return (
+          <ShoppingListItem
+            name={item.name}
+            onDelete={() => handleDelete(item.id)}
+            onToggleComplete={() => handleToggleComplete(item.id)}
+            isCompleted={Boolean(item.completedAtTypestamp)}
+          ></ShoppingListItem>
+        );
       }}
       ListHeaderComponent={
         <TextInput
